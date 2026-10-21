@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Menu Creator & Success Checklist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #ff5722;
+      --primary-hover: #e64a19;
+      --primary-soft: rgba(255, 87, 34, 0.12);
+      --success: #10b981;
+      --success-hover: #059669;
+      --success-soft: rgba(16, 185, 129, 0.12);
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --radius: 16px;
+      --transition: all 0.25s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff7a45, #ffb074);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Top Controls / Voice bar */
+    .voice-control-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .mic-button-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-mic {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      border: none;
+      color: #fff;
+      font-size: 26px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+      transition: var(--transition);
+      z-index: 2;
+    }
+
+    .btn-mic:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-mic.listening {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.7);
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .listening-status {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      min-height: 22px;
+      text-align: center;
+    }
+
+    .listening-status.active {
+      color: #38bdf8;
+      font-weight: 500;
+    }
+
+    /* Manual Input Row */
+    .input-row {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      gap: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.7);
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .input-row input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-soft);
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Grid Layout for Available & Success Lists */
+    .lists-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .lists-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .column-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 400px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-count {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .badge-count.success-count {
+      background: var(--success-soft);
+      color: #34d399;
+    }
+
+    .items-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      overflow-y: auto;
+      max-height: 480px;
+      padding-right: 4px;
+    }
+
+    .items-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .items-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      transition: var(--transition);
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-item:hover {
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Custom Checkbox */
+    .custom-check {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #64748b;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .custom-check:checked {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    .custom-check:checked::before {
+      content: "✔";
+      font-size: 12px;
+      color: white;
+    }
+
+    .item-text {
+      font-size: 1rem;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .success-column .item-text {
+      color: #cbd5e1;
+      text-decoration: line-through;
+      text-decoration-color: #10b981;
+    }
+
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 8px;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: var(--transition);
+    }
+
+    .btn-icon:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-speak:hover {
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-speak.speaking {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      animation: pulse 1s infinite;
+    }
+
+    .btn-delete:hover {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 10px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: auto;
+    }
+
+    .empty-state span {
+      display: block;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* Floating clear options */
+    .panel-footer {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 12px;
+      margin-top: 10px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .app-footer {
+  margin-top: 40px;
+  padding: 20px 0 10px;
+  text-align: center;
+  border-top: 1px solid var(--card-border);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.app-footer p {
+  margin-bottom: 6px;
+}
+
+.app-footer strong {
+  color: #ff7a45; /* Theme accent color */
+  font-weight: 600;
+}
+
+.footer-links {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.footer-links a {
+  color: #38bdf8;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer-links a:hover {
+  color: #7dd3fc;
+  text-decoration: underline;
+}
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🎙️ Voice Menu Checklist</h1>
+      <p>माइक बटन दबाकर बोलें या टाइप करें। चेक करने पर आइटम "सफल (Success)" में चला जाएगा।</p>
+    </header>
+
+    <!-- Top Voice & Input Controls -->
+    <div class="voice-control-card">
+      <div class="mic-button-wrapper">
+        <button id="micBtn" class="btn-mic" title="बोलने के लिए क्लिक करें">🎤</button>
+      </div>
+      <div id="statusText" class="listening-status">माइक पर क्लिक करें और डिश का नाम बोलें (उदा: "मटर पनीर")</div>
+
+      <form id="addForm" class="input-row">
+        <input type="text" id="dishInput" placeholder="या यहाँ डिश का नाम टाइप करें..." autocomplete="off">
+        <button type="submit" class="btn btn-primary">जोड़ें</button>
+      </form>
+    </div>
+
+    <!-- 2 Column Lists: Available vs Success -->
+    <div class="lists-grid">
+      
+      <!-- Panel 1: Available Menu -->
+      <div class="column-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>📋 उपलब्ध मेन्यू</span>
+            <span class="badge-count" id="availableCount">0</span>
+          </div>
+          <button id="readAvailableBtn" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;">🔊 सब पढ़ें</button>
+        </div>
+
+        <ul class="items-list" id="availableList"></ul>
+
+        <div class="panel-footer">
+          <button id="clearAvailableBtn" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">मेन्यू साफ़ करें</button>
+        </div>
+      </div>
+
+      <!-- Panel 2: Success / Selected Items -->
+      <div class="column-panel success-column">
+        <div class="panel-header">
+          <div class="panel-title" style="color: #34d399;">
+            <span>✅ सफल / तैयार (Success)</span>
+            <span class="badge-count success-count" id="successCount">0</span>
+          </div>
+          <button id="readSuccessBtn" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;">🔊 सब पढ़ें</button>
+        </div>
+
+        <ul class="items-list" id="successList"></ul>
+
+        <div class="panel-footer">
+          <button id="clearSuccessBtn" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">सक्सेस लिस्ट खाली करें</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // State Management backed by localStorage
+    let availableItems = JSON.parse(localStorage.getItem('voice_menu_available')) || [
+      
+    ];
+    let successItems = JSON.parse(localStorage.getItem('voice_menu_success')) || [];
+
+    // Elements
+    const micBtn = document.getElementById('micBtn');
+    const statusText = document.getElementById('statusText');
+    const addForm = document.getElementById('addForm');
+    const dishInput = document.getElementById('dishInput');
+    const availableList = document.getElementById('availableList');
+    const successList = document.getElementById('successList');
+    const availableCount = document.getElementById('availableCount');
+    const successCount = document.getElementById('successCount');
+    const readAvailableBtn = document.getElementById('readAvailableBtn');
+    const readSuccessBtn = document.getElementById('readSuccessBtn');
+    const clearAvailableBtn = document.getElementById('clearAvailableBtn');
+    const clearSuccessBtn = document.getElementById('clearSuccessBtn');
+
+    // Save state to localStorage
+    function saveToLocalStorage() {
+      localStorage.setItem('voice_menu_available', JSON.stringify(availableItems));
+      localStorage.setItem('voice_menu_success', JSON.stringify(successItems));
+    }
+
+    // Text to Speech (🔊 Speaker)
+    function speakText(text, onStartCallback, onEndCallback) {
+      if (!('speechSynthesis' in window)) {
+        alert("माफ़ कीजिए! आपके ब्राउज़र में Text-to-Speech सपोर्ट नहीं है।");
+        return;
+      }
+      window.speechSynthesis.cancel(); // Stop active speaking
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN'; // Hindi voice preference
+      utterance.rate = 0.95;
+
+      if (onStartCallback) utterance.onstart = onStartCallback;
+      utterance.onend = () => {
+        if (onEndCallback) onEndCallback();
+      };
+      utterance.onerror = () => {
+        if (onEndCallback) onEndCallback();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Render Lists
+    function render() {
+      // 1. Available List
+      availableList.innerHTML = '';
+      if (availableItems.length === 0) {
+        availableList.innerHTML = `
+          <div class="empty-state">
+            <span>🍽️</span>
+            कोई डिश नहीं है। बोलकर या लिखकर जोड़ें!
+          </div>`;
+      } else {
+        availableItems.forEach((dish, idx) => {
+          const li = document.createElement('li');
+          li.className = 'menu-item';
+          li.innerHTML = `
+            <div class="item-left">
+              <input type="checkbox" class="custom-check" data-idx="${idx}" title="सफल लिस्ट में डालें">
+              <span class="item-text">${dish}</span>
+            </div>
+            <div class="item-actions">
+              <button class="btn-icon btn-speak" title="सुनें">🔊</button>
+              <button class="btn-icon btn-delete" title="हटाएँ">🗑️</button>
+            </div>
+          `;
+
+          // Checkbox -> Move to Success
+          li.querySelector('.custom-check').addEventListener('change', () => {
+            moveToSuccess(idx);
+          });
+
+          // Speaker Button
+          const speakBtn = li.querySelector('.btn-speak');
+          speakBtn.addEventListener('click', () => {
+            speakText(dish, () => speakBtn.classList.add('speaking'), () => speakBtn.classList.remove('speaking'));
+          });
+
+          // Delete Button
+          li.querySelector('.btn-delete').addEventListener('click', () => {
+            availableItems.splice(idx, 1);
+            saveToLocalStorage();
+            render();
+          });
+
+          availableList.appendChild(li);
+        });
+      }
+
+      // 2. Success List
+      successList.innerHTML = '';
+      if (successItems.length === 0) {
+        successList.innerHTML = `
+          <div class="empty-state">
+            <span>✨</span>
+            यहाँ कोई सिलेक्टेड आइटम नहीं है। मेन्यू चेक करें!
+          </div>`;
+      } else {
+        successItems.forEach((dish, idx) => {
+          const li = document.createElement('li');
+          li.className = 'menu-item';
+          li.innerHTML = `
+            <div class="item-left">
+              <input type="checkbox" class="custom-check" checked data-idx="${idx}" title="वापस उपलब्ध में भेजें">
+              <span class="item-text">${dish}</span>
+            </div>
+            <div class="item-actions">
+              <button class="btn-icon btn-speak" title="सुनें">🔊</button>
+              <button class="btn-icon btn-delete" title="हटाएँ">🗑️</button>
+            </div>
+          `;
+
+          // Uncheck -> Move back to Available
+          li.querySelector('.custom-check').addEventListener('change', () => {
+            moveToAvailable(idx);
+          });
+
+          // Speaker Button
+          const speakBtn = li.querySelector('.btn-speak');
+          speakBtn.addEventListener('click', () => {
+            speakText(dish, () => speakBtn.classList.add('speaking'), () => speakBtn.classList.remove('speaking'));
+          });
+
+          // Delete Button
+          li.querySelector('.btn-delete').addEventListener('click', () => {
+            successItems.splice(idx, 1);
+            saveToLocalStorage();
+            render();
+          });
+
+          successList.appendChild(li);
+        });
+      }
+
+      // Update counters
+      availableCount.textContent = availableItems.length;
+      successCount.textContent = successItems.length;
+    }
+
+    // Move logic
+    function moveToSuccess(index) {
+      const item = availableItems.splice(index, 1)[0];
+      if (item) {
+        successItems.push(item);
+        saveToLocalStorage();
+        render();
+      }
+    }
+
+    function moveToAvailable(index) {
+      const item = successItems.splice(index, 1)[0];
+      if (item) {
+        availableItems.push(item);
+        saveToLocalStorage();
+        render();
+      }
+    }
+
+    // Add Dish Form Submit
+    addForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = dishInput.value.trim();
+      if (val) {
+        availableItems.push(val);
+        dishInput.value = '';
+        saveToLocalStorage();
+        render();
+      }
+    });
+
+    // Bulk Speak Buttons
+    readAvailableBtn.addEventListener('click', () => {
+      if (availableItems.length === 0) return alert('उपलब्ध मेन्यू खाली है!');
+      speakText("उपलब्ध मेन्यू है: " + availableItems.join(', '));
+    });
+
+    readSuccessBtn.addEventListener('click', () => {
+      if (successItems.length === 0) return alert('सक्सेस लिस्ट खाली है!');
+      speakText("सफल आइटम्स हैं: " + successItems.join(', '));
+    });
+
+    // Clear buttons
+    clearAvailableBtn.addEventListener('click', () => {
+      if (confirm('क्या आप पूरा उपलब्ध मेन्यू हटाना चाहते हैं?')) {
+        availableItems = [];
+        saveToLocalStorage();
+        render();
+      }
+    });
+
+    clearSuccessBtn.addEventListener('click', () => {
+      if (confirm('क्या आप सक्सेस लिस्ट साफ़ करना चाहते हैं?')) {
+        successItems = [];
+        saveToLocalStorage();
+        render();
+      }
+    });
+
+    // Speech-to-Text Setup (Web Speech API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'hi-IN'; // Default Hindi (supports mixed Hindi/English)
+
+      recognition.onstart = () => {
+        micBtn.classList.add('listening');
+        statusText.classList.add('active');
+        statusText.textContent = '🎙️ सुन रहा हूँ... बोलिए!';
+      };
+
+      recognition.onresult = (event) => {
+        const spokenDish = event.results[0][0].transcript.trim();
+        if (spokenDish) {
+                    // 1. Punctuation aur trailing dots hatayein
+                    const cleanSpeech = spokenDish.replace(/[।\.]/g, '').trim();
+
+                    // 2. comma (,), "aur", "and", "phir", "tatha" se split karein
+                    const items = cleanSpeech
+                        .split(/\s*(?:,|aur|and|phir|tatha)\s*/i)
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0);
+
+                    // 3. Sabhi items ko list me push karein
+                    items.forEach(dish => {
+                        availableItems.push(dish);
+                    });
+
+                    // 4. Save aur refresh
+                    saveToLocalStorage();
+                    render();
+
+                    statusText.textContent = `जोड़ा गया: ${items.join(', ')}`;
+                    }
+        // if (spokenDish) {
+        //   // Remove trailing dots if any
+        //      const cleanDish = spokenDish.replace(/[।\.]/g, '');
+        //   const items = cleanDish.split(/\s+/); // ya agar comma se alag hain toh .split(',')
+
+        //         items.forEach(item => {
+        //             const trimmedItem = item.trim();
+        //             if (trimmedItem) { // Khali string add na ho iske liye check
+        //                 availableItems.push(trimmedItem);
+        //             }
+        //         });
+       
+        // //   availableItems.push(cleanDish);
+        //   saveToLocalStorage();
+        //   render();
+        //   statusText.textContent = `जोड़ा गया: "${cleanDish}"`;
+        // }
+      };
+
+      recognition.onerror = (event) => {
+        statusText.classList.remove('active');
+        statusText.textContent = 'त्रुटि (Error): ' + event.error;
+        micBtn.classList.remove('listening');
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove('listening');
+        setTimeout(() => {
+          statusText.classList.remove('active');
+          statusText.textContent = 'माइक पर क्लिक करें और डिश का नाम बोलें';
+        }, 3000);
+      };
+
+      micBtn.addEventListener('click', () => {
+        try {
+          recognition.start();
+        } catch (e) {
+          recognition.stop();
+        }
+      });
+    } else {
+      micBtn.disabled = true;
+      micBtn.style.opacity = '0.5';
+      statusText.textContent = '⚠️ इस ब्राउज़र में Speech Recognition सपोर्ट नहीं है (Chrome यूज़ करें)।';
+    }
+
+    // Initial Render
+    render();
+  </script>
+    <!-- Container ke theek andar sabse neeche -->
+  <footer class="app-footer">
+    <p>Developed ❤️ by <strong>Raju Maurya</strong></p>
+    <!-- <div class="footer-links">
+      <a href="https://github.com/your-username" target="_blank" rel="noopener noreferrer">GitHub</a> • 
+      <a href="https://linkedin.com/in/your-username" target="_blank" rel="noopener noreferrer">LinkedIn</a> -->
+    </div>
+  </footer>
+
+</div> <!-- .container closing -->
+</body>
+</html>
